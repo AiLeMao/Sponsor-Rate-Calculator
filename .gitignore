@@ -1,0 +1,17 @@
+#all the lads to ignore
+
+#api keys
+keys.env
+#static values
+static_values.env
+#everything else .env to be safe
+.env
+
+#the random folder that was made to download the random youtube api stuff and pip update
+myenv/
+# Ignore __pycache__ folders
+__pycache__/
+__pycache__
+*.pyc
+*.pyo
+*.pyd
