@@ -5,6 +5,7 @@ import requests
 #init all the scripts i've made
 import yt_api
 import yt_func
+import tw_api
 
 #loading api keys
 load_dotenv("keys.env")
@@ -32,7 +33,7 @@ yt_outlier_range = float(os.getenv("yt_outlier_range"))
 
 #dummy input master sections
 #check what platform the info is for and run the corresponding platform functions
-content_type = "videos" 
+content_type = "twitch" 
 
 
 
@@ -42,7 +43,7 @@ match content_type:
 
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
-        
+
         yt_channel_rpm = 4.00 #temp value. replace later with ppls rpm in float[2]
         yt_identifier_input = os.getenv("test_input")#replace this with web input. for some reason this input is rly finicky on urls. Fix later
         #should be a checkbox input on website or something for content types
@@ -85,7 +86,7 @@ match content_type:
         yt_dedicated_min = round(yt_dedicated - (yt_dedicated * yt_outlier_range), 2)
         yt_dedicated_max = round(yt_dedicated + (yt_dedicated * yt_outlier_range), 2)
 
-        print(f"{yt_integration}\n{yt_integration_min}\n{yt_integration_max}\n{yt_dedicated}\n{yt_dedicated_min}\n{yt_dedicated_max}")
+        print(f"Integration: {yt_integration}\n Min: {yt_integration_min}\n Max: {yt_integration_max}\n Dedicated: {yt_dedicated}\n Min: {yt_dedicated_min}\n Max: {yt_dedicated_max}")
 
         #collect all the data for outputting into a single dict so it is easy to get out later... i hope
         yt_sponsor_rate_output = {
@@ -96,6 +97,11 @@ match content_type:
         "dedicated_min": yt_dedicated_min,
         "dedicated_max": yt_dedicated_max,
     }
+        #debug chunk
+        """
+        for key, value in yt_sponsor_rate_output.items():
+            print(f"{key}: {value}")
+        """
    
     case "shorts":  # YouTube shorts
         pass
@@ -107,10 +113,41 @@ match content_type:
         pass
 
     case "twitch":  # Twitch
-        pass
+        # DUMMY INPUTS
+        tw_username = os.getenv("twitch_test_input")
+        sponsor_margin = 0  # 0-1 how crazy a sponsor is. gambling and crypto is 1, low margin goods are 0
+
+        # Set the values so I can use them in calcs later
+        tw_ccv30 = tw_api.get_ccv_30(tw_username)
+        
+        # Check if tw_ccv30 is None
+        if tw_ccv30 is None:
+            print("Failed to retrieve average viewers. Going on with a fat ol 0. Do fix that habibi")
+            tw_ccv30 = 0  
+
+        tw_static_multi = float(os.getenv("tw_static_multiplier")) 
+        tw_outlier_range = float(os.getenv("tw_outlier_range"))
+
+        # Convert to sponsor rate/hr
+        tw_sponsor_hourly = round(((1 + sponsor_margin) * tw_ccv30) * tw_static_multi, 2)
+        tw_sponsor_hourly_min = round(tw_sponsor_hourly - (tw_sponsor_hourly * tw_outlier_range), 2)
+        tw_sponsor_hourly_max = round(tw_sponsor_hourly + (tw_sponsor_hourly * tw_outlier_range), 2)
+
+        tw_sponsor_hourly_output = {
+            "sponsor_hourly": tw_sponsor_hourly,
+            "sponsor_hourly_min": tw_sponsor_hourly_min,
+            "sponsor_hourly_max": tw_sponsor_hourly_max,
+        }
+
+        #debug chunk
+        """
+        for key, value in tw_sponsor_hourly_output.items():
+            print(f"{key}: {value}")
+        """
 
     case "tiktok":  # TikTok videos
         pass
 
     case _:
         raise Exception("No valid content type found!")
+    
