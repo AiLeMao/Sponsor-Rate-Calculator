@@ -28,12 +28,11 @@ def get_ccv_30(username):
         if average_viewer_element:
             # Extract the text, remove commas, and convert it to an integer just in case 
             average_viewer_text = average_viewer_element[0].text.strip()
-            average_viewer_number = int(average_viewer_text.replace(",", ""))
-            average_viewer_number = 
+            average_viewer_number = int(average_viewer_text.replace(",", "")) #just in case we go over 1k and it gets commas and schtuff
             #print(f"The average viewer number is: {average_viewer_number}") DEBUG PRINT
             return average_viewer_number
         else:
-            print("Could not find the average viewer number on the page.")
+            print("Could not find the average viewer number on the page. the webscrapey is brokey, go fix it dummy")
             return None
     else:
         print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
