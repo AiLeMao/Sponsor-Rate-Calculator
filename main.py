@@ -37,7 +37,8 @@ content_type = "videos"
 
 
 #YOUTUBE LONGFORM INPUT GANG HERE
-if content_type == "videos": #youtube longform
+match content_type:
+    case "videos":  # YouTube long-form videos
     #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
     #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
     yt_channel_rpm = 4.00 #temp value. replace later with ppls rpm in float[2]
@@ -94,16 +95,20 @@ if content_type == "videos": #youtube longform
 }
     
    
-elif content_type == "shorts": #youtube shorts
-    pass
-elif content_type == "streams": #youtube streams
-    pass
-elif content_type == "instagram": #instagram posts
-    pass
-elif content_type == "twitch": #twitch
-    pass
-elif content_type == "tiktok": #tiktok videos. can we even do live?
-    pass
-else:
-    raise Exception("No valid content type found!")
+    case "shorts":  # YouTube shorts
+        pass
 
+    case "streams":  # YouTube streams
+        pass
+
+    case "instagram":  # Instagram posts
+        pass
+
+    case "twitch":  # Twitch
+        pass
+
+    case "tiktok":  # TikTok videos
+        pass
+
+    case _:
+        raise Exception("No valid content type found!")
