@@ -144,26 +144,26 @@ match content_type:
 
         #yt_api.get_video_stats(yt_playlist_id, scan_age=30, min_videos=10, max_videos=50)
         #get the list of the last relevant videos:
-        recalled_videos = yt_api.get_video_stats(yt_playlists[content_type], yt_get_video_stats_scan_age, yt_get_video_stats_min_videos, yt_get_video_stats_max_videos)
+        recalled_videos = yt_api.get_video_stats(yt_playlists[content_type], sh_get_video_stats_scan_age, sh_get_video_stats_min_videos, sh_get_video_stats_max_videos)
 
         #delet newest upload if it's not near peak views yet. This is after normalize rpm so it has a bit more data to work with
-        updated_recalled_videos = yt_func.fresh_upload_killer(recalled_videos, yt_fresh_age, yt_fresh_threshold, yt_fresh_outlier_multiplier)
+        updated_recalled_videos = yt_func.fresh_upload_killer(recalled_videos, sh_fresh_age, sh_fresh_threshold, sh_fresh_outlier_multiplier)
 
         #get the average views to prep for brand deal calc
         average_views = int(yt_func.get_avr_views(updated_recalled_videos))
 
         #take normalized rpm and get static value multiplier to convert to a real life sponsor cpm
-        base_cpm_integrated = yt_shorts_rpm * float(yt_sponsor_multiplier_shorts)
-        base_cpm_dedicated = yt_shorts_rpm * float(yt_sponsor_multiplier_shorts)
+        base_cpm_integrated = yt_shorts_rpm * float(sh_sponsor_multiplier)
+        base_cpm_dedicated = yt_shorts_rpm * float(sh_sponsor_multiplier)
 
         #convert sponsor cpm to amount it should sponsor for
         yt_integration = round(base_cpm_integrated * (average_views/1000), 2)
-        yt_integration_min = round(yt_integration - (yt_integration * yt_outlier_range), 2)
-        yt_integration_max = round(yt_integration + (yt_integration * yt_outlier_range), 2)
+        yt_integration_min = round(yt_integration - (yt_integration * sh_outlier_range), 2)
+        yt_integration_max = round(yt_integration + (yt_integration * sh_outlier_range), 2)
         
         yt_dedicated = round(base_cpm_dedicated * (average_views / 1000), 2)
-        yt_dedicated_min = round(yt_dedicated - (yt_dedicated * yt_outlier_range), 2)
-        yt_dedicated_max = round(yt_dedicated + (yt_dedicated * yt_outlier_range), 2)
+        yt_dedicated_min = round(yt_dedicated - (yt_dedicated * sh_outlier_range), 2)
+        yt_dedicated_max = round(yt_dedicated + (yt_dedicated * sh_outlier_range), 2)
 
         print(f"Integration: {yt_integration}\n Min: {yt_integration_min}\n Max: {yt_integration_max}\n Dedicated: {yt_dedicated}\n Min: {yt_dedicated_min}\n Max: {yt_dedicated_max}")
 
