@@ -13,9 +13,9 @@ Done:
     -youtube longform
     -twitch
     -redo config file
+    -fix url inputs so all types of urls work, not just the specific 2 for youtube stuff
 
 todo list:
-    -fix url inputs so all types of urls work, not just the specific 2 for youtube stuff
     -obtain data to get proper multipliers and ad counts so static values are accurate
     
     -add X/twitter functionality
