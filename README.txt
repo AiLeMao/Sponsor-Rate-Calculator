@@ -12,6 +12,7 @@ Insta: channel identification (url or exact tag, maybe search by name?)+ somethi
 Done:
     -youtube longform
     -twitch
+    -redo config file
 
 todo list:
     -fix url inputs so all types of urls work, not just the specific 2 for youtube stuff

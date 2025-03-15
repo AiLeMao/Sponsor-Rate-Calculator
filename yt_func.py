@@ -25,50 +25,76 @@ else -> handle
 # url, 
 # id
 
-def classify_youtube_input(yt_identifier_input): 
-    yt_identifier_input = yt_identifier_input.strip()
-    
-    if "youtube.com" in yt_identifier_input or "youtu.be" in yt_identifier_input: #input is url link
-        user_handle = yt_api.yt_get_channel_handle_from_url(yt_identifier_input)
-        user_url = yt_identifier_input
-        user_id = yt_api.yt_get_channel_id_from_url(yt_identifier_input)
+def classify_youtube_input(yt_identifier_input):
+    try:
+        # Strip and validate input
+        yt_identifier_input = yt_identifier_input.strip()
+        if not yt_identifier_input:
+            raise ValueError("Input cannot be empty.")
 
-        return {
-            "handle" : user_handle,
-            "url" : user_url,
-            "id" : user_id
-        }
-    
-    elif yt_identifier_input.startswith("@"): #input is a handle
-        user_handle = yt_identifier_input
-        user_url = yt_api.yt_get_channel_url_from_handle(yt_identifier_input)
-        user_id = yt_api.yt_get_channel_id_from_handle(yt_identifier_input)
+        # Regex patterns for different URL formats
+        handle_pattern = r"https?://(?:www\.)?youtube\.com/(?:@|channel/|c/)([^/]+)"
+        channel_id_pattern = r"https?://(?:www\.)?youtube\.com/channel/(UC[\w-]{22})"
 
-        return {
-            "handle" : user_handle,
-            "url" : user_url,
-            "id" : user_id
-        }
-    
-    elif yt_identifier_input.startswith("UC") and re.fullmatch(r"UC[A-Za-z0-9_-]{22}", yt_identifier_input): #input is a channel id
-        user_handle = yt_api.yt_get_channel_id_from_id(yt_identifier_input)
-        user_url = yt_api.yt_get_channel_url_from_id(yt_identifier_input)
-        user_id = yt_identifier_input
-        return {
-            "handle" : user_handle,
-            "url" : user_url,
-            "id" : user_id
-        }
-    else: #if not all of the above it's probably a handle. who knows. lets hope the api calls return an error if it isnt
-        user_handle = yt_identifier_input
-        user_url = yt_api.yt_get_channel_url_from_handle(yt_identifier_input)
-        user_id = yt_api.yt_get_channel_id_from_handle(yt_identifier_input)
+        # Helper function to construct the return dictionary
+        def build_result(handle, url, id):
+            return {
+                "handle": handle,
+                "url": url,
+                "id": id
+            }
 
-        return {
-            "handle" : user_handle,
-            "url" : user_url,
-            "id" : user_id
-        }
+        # Check if input is a URL
+        if "youtube.com" in yt_identifier_input or "youtu.be" in yt_identifier_input:
+            # Handle-based URLs (e.g., @ying_verse, channel/@ying_verse, c/ying_verse)
+            handle_match = re.search(handle_pattern, yt_identifier_input)
+            if handle_match:
+                handle = handle_match.group(1)
+                if handle.startswith("@"):
+                    handle = handle[1:]  # Remove "@" for consistency
+                return build_result(
+                    handle=f"@{handle}",
+                    url=yt_identifier_input,
+                    id=yt_api.yt_get_channel_id_from_handle(handle)
+                )
+
+            # Channel ID-based URLs (e.g., channel/UCdwCJM5ScKKKW7dQmDUIIdA)
+            channel_id_match = re.search(channel_id_pattern, yt_identifier_input)
+            if channel_id_match:
+                channel_id = channel_id_match.group(1)
+                return build_result(
+                    handle=yt_api.yt_get_channel_handle_from_id(channel_id),
+                    url=yt_identifier_input,
+                    id=channel_id
+                )
+
+        # Handle inputs that are not URLs
+        elif yt_identifier_input.startswith("@"):  # Input is a handle
+            handle = yt_identifier_input[1:]  # Remove "@"
+            return build_result(
+                handle=yt_identifier_input,
+                url=yt_api.yt_get_channel_url_from_handle(handle),
+                id=yt_api.yt_get_channel_id_from_handle(handle)
+            )
+
+        elif yt_identifier_input.startswith("UC") and re.fullmatch(r"UC[\w-]{22}", yt_identifier_input):  # Input is a channel ID
+            return build_result(
+                handle=yt_api.yt_get_channel_handle_from_id(yt_identifier_input),
+                url=yt_api.yt_get_channel_url_from_id(yt_identifier_input),
+                id=yt_identifier_input
+            )
+
+        else:  # Assume input is a handle (without "@")
+            return build_result(
+                handle=f"@{yt_identifier_input}",
+                url=yt_api.yt_get_channel_url_from_handle(yt_identifier_input),
+                id=yt_api.yt_get_channel_id_from_handle(yt_identifier_input)
+            )
+
+    except Exception as e:
+        # Handle any unexpected errors
+        print(f"Error processing input: {e}")
+        return None
 
 #-------------------------------------------------------------------------------------------------------------------------
 #turn channel ID into all the prefix IDs for each type of content:
