@@ -1,7 +1,6 @@
 #init all the packages for basic function
 from dotenv import load_dotenv #for .env files
 import os
-import requests
 
 #read config stuff
 from configparser import ConfigParser
