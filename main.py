@@ -5,7 +5,11 @@ import os
 #read config stuff
 from configparser import ConfigParser
 config = ConfigParser()
-config.read("config.ini")
+try:
+    config.read("config.ini")
+except Exception as e:
+    print(f"Error reading config file: {e}")
+    exit(1)
 
 #init all the scripts i've made
 import yt_api

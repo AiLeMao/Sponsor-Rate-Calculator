@@ -1,6 +1,7 @@
 import os #file browser type beat
 import requests #this one is for requesting stuff but i forgot
 from datetime import datetime, timedelta #for the age comparison
+import re
 
 import isodate  # For parsing ISO 8601 duration format for video duration to second stuff
 
@@ -23,43 +24,37 @@ def yt_get_subscribers_from_handle(yt_channel_handle):
 #big ol block to get api calls and stuff to get the id, channel url and handle functions so its not terrible to deal with in main
 # Get handle from URL
 
-"""
-
-FOR SOME REASON THIS ONLY WORKS ON .com/channel/usernamehere urls. i gotta tweak this to work in all the cases. but fuck that rn
-
-"""
 def yt_get_channel_handle_from_url(yt_channel_url):
-    if "youtube.com" in yt_channel_url:
-        if "/@" in yt_channel_url:
-            handle = yt_channel_url.split("/@")[-1].split("/")[0]
-        elif "channel/" in yt_channel_url:
-            channel_id = yt_channel_url.split("channel/")[-1].split("/")[0]
-            return yt_get_channel_handle_from_id(channel_id)  # Pass only the channel ID
-        else:
-            raise ValueError("Invalid YouTube URL format.")
-    else:
-        handle = yt_channel_url.lstrip("@")
-    return handle
+    """
+    Extracts the YouTube channel handle from a given URL.
+    Supports:
+    - Standard YouTube URLs (e.g., https://www.youtube.com/@handle, https://www.youtube.com/channel/UCxxx)
+    - Mobile YouTube URLs (e.g., https://m.youtube.com/@handle)
+    - Handle-only URLs (e.g., https://www.youtube.com/@handle)
+    """
+    # Regex patterns for different URL formats
+    handle_pattern = re.compile(r"(?:https?:\/\/)?(?:www\.|m\.)?youtube\.com\/(?:@|channel\/|c\/)?([^\/\?]+)")
+    short_url_pattern = re.compile(r"(?:https?:\/\/)?youtu\.be\/([^\/\?]+)")
 
-#Get handle from ID
-def yt_get_channel_handle_from_id(yt_channel_id):
-    """Fetch the channel's handle using the channel ID."""
-    url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet&id={yt_channel_id}&key={youtube_api_key}"
-    response = requests.get(url).json()
+    # Handle standard and mobile YouTube URLs (e.g., https://www.youtube.com/@handle, https://m.youtube.com/@handle)
+    handle_match = handle_pattern.search(yt_channel_url)
+    if handle_match:
+        handle = handle_match.group(1)
+        if handle.startswith("@"):
+            handle = handle[1:]  # Remove "@" for consistency
+        return handle
 
-    if "items" not in response or not response["items"]:
-        raise ValueError("Invalid channel ID or API error.")
-
-    handle = response["items"][0]["snippet"].get("customUrl", f"{response['items'][0]['snippet']['title']}")
-    
-    return handle.lstrip("@")
+    # If no valid format is found, raise an error
+    raise ValueError("Invalid YouTube URL format.")
 
 #Get channel ID from URL
 def yt_get_channel_id_from_url(yt_channel_url):
-    if "youtube.com" in yt_channel_url:
+    if "youtube.com" or "youtu.be" in yt_channel_url:
         if "/@" in yt_channel_url:
             handle = yt_channel_url.split("/@")[-1].split("/")[0]
-        elif "channel/" in yt_channel_url:
+        elif "/channel/" in yt_channel_url:
+            return yt_channel_url.split("channel/")[-1].split("/")[0]
+        elif "/c/" in yt_channel_url:
             return yt_channel_url.split("channel/")[-1].split("/")[0]
         else:
             raise ValueError("Invalid YouTube URL format.")
@@ -112,7 +107,19 @@ def yt_get_channel_url_from_id(yt_channel_id):
         return f"https://www.youtube.com/channel/{yt_channel_id}"
 
 
+"""
+url -> handle
+url -> id
 
+handle -> id
+handle -> url
+
+id -> url
+
+
+
+
+"""
 #--------------------------------------------------------------------------------------------------------------------------
 """
 get last 30 videos if they are recent. otherwise settle for last 10
