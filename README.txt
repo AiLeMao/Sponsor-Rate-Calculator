@@ -17,7 +17,7 @@ todo list:
     -fix url inputs so all types of urls work, not just the specific 2 for youtube stuff
     -obtain data to get proper multipliers and ad counts so static values are accurate
     
-        
+    -add X/twitter functionality
     -add youtube short functionality
     -add youtube streams functionality
     -add tiktok functionality? How the heckles do u even api that????

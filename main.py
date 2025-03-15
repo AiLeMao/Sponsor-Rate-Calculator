@@ -1,7 +1,13 @@
 #init all the packages for basic function
-from dotenv import load_dotenv
+from dotenv import load_dotenv #for .env files
 import os
 import requests
+
+#read config stuff
+from configparser import ConfigParser
+config = ConfigParser()
+config.read("config.ini")
+
 #init all the scripts i've made
 import yt_api
 import yt_func
@@ -11,37 +17,34 @@ import tw_api
 load_dotenv("keys.env")
 youtube_api_key = os.getenv("youtube_api_key")
 
-#loading static values
-load_dotenv("static_values.env")
-
+#loading static values and configs
+load_dotenv("test_inputs.env")
 
 
 #dummy input master sections
 #check what platform the info is for and run the corresponding platform functions
-content_type = "twitch" 
+content_type = str(os.getenv("test_format"))
 
 
-
-#YOUTUBE LONGFORM INPUT GANG HERE
 match content_type:
     case "videos":  # YouTube long-form videos
 
         #import all the static values from static_values.env
-        yt_get_video_stats_scan_age = int(os.getenv("yt_scan_age"))
-        yt_get_video_stats_min_videos = int(os.getenv("yt_min_videos"))
-        yt_get_video_stats_max_videos = int(os.getenv("yt_max_videos"))
+        yt_get_video_stats_scan_age = int(config.getint("yt_longform", "scan_age"))
+        yt_get_video_stats_min_videos = int(config.getint("yt_longform", "min_videos"))
+        yt_get_video_stats_max_videos = int(config.getint("yt_longform", "max_videos"))
 
-        yt_non_mid_roll_ads = float(os.getenv("yt_non_mid_roll_ads"))
-        yt_mid_roll_threshold = float(os.getenv("yt_mid_roll_threshold"))
-        yt_sec_per_midroll_ad = float(os.getenv("yt_seconds_per_midroll_ad"))
+        yt_non_mid_roll_ads = float(config.getfloat("yt_longform", "non_mid_roll_ads"))
+        yt_mid_roll_threshold = float(config.getfloat("yt_longform", "mid_roll_threshold"))
+        yt_sec_per_midroll_ad = float(config.getfloat("yt_longform", "seconds_per_midroll_ad"))
 
-        yt_fresh_age = int(os.getenv("yt_fresh_age"))
-        yt_fresh_threshold = float(os.getenv("yt_fresh_threshold"))
-        yt_fresh_outlier_multiplier = float(os.getenv("yt_fresh_outlier_multiplier"))
+        yt_fresh_age = int(config.getint("yt_longform", "fresh_age"))
+        yt_fresh_threshold = float(config.getfloat("yt_longform", "fresh_threshold"))
+        yt_fresh_outlier_multiplier = float(config.getfloat("yt_longform", "fresh_outlier_multiplier"))
 
-        yt_sponsor_multiplier_integrated = float(os.getenv("yt_sponsor_multiplier_integrated"))
-        yt_sponsor_multiplier_dedicated = float(os.getenv("yt_sponsor_multiplier_dedicated"))
-        yt_outlier_range = float(os.getenv("yt_outlier_range"))
+        yt_sponsor_multiplier_integrated = float(config.getfloat("yt_longform", "sponsor_multipliers.integrated"))
+        yt_sponsor_multiplier_dedicated = float(config.getfloat("yt_longform", "sponsor_multipliers.dedicated"))
+        yt_outlier_range = float(config.getfloat("yt_longform", "outlier_range"))
 
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
@@ -108,20 +111,16 @@ match content_type:
     case "shorts":  # YouTube shorts
 
         #import all the static values from static_values.env
-        sh_get_video_stats_scan_age = int(os.getenv("sh_scan_age"))
-        sh_get_video_stats_min_videos = int(os.getenv("sh_min_videos"))
-        sh_get_video_stats_max_videos = int(os.getenv("sh_max_videos"))
+        sh_get_video_stats_scan_age = int(config.getint("yt_shorts", "scan_age"))
+        sh_get_video_stats_min_videos = int(config.getint("yt_shorts", "min_videos"))
+        sh_get_video_stats_max_videos = int(config.getint("yt_shorts", "max_videos"))
 
-        sh_non_mid_roll_ads = float(os.getenv("sh_non_mid_roll_ads"))
-        sh_mid_roll_threshold = float(os.getenv("sh_mid_roll_threshold"))
-        sh_sec_per_midroll_ad = float(os.getenv("sh_seconds_per_midroll_ad"))
+        sh_fresh_age = int(config.getint("yt_shorts", "fresh_age"))
+        sh_fresh_threshold = float(config.getfloat("yt_shorts", "fresh_threshold"))
+        sh_fresh_outlier_multiplier = float(config.getfloat("yt_shorts", "fresh_outlier_multiplier"))
 
-        sh_fresh_age = int(os.getenv("sh_fresh_age"))
-        sh_fresh_threshold = float(os.getenv("sh_fresh_threshold"))
-        sh_fresh_outlier_multiplier = float(os.getenv("sh_fresh_outlier_multiplier"))
-
-        sh_sponsor_multiplier = float(os.getenv("sh_sponsor_multiplier_integrated"))
-        sh_outlier_range = float(os.getenv("sh_outlier_range"))
+        sh_sponsor_multiplier = float(config.getfloat("yt_shorts", "sponsor_multiplier"))
+        sh_outlier_range = float(config.getfloat("yt_shorts", "outlier_range"))
 
 
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
@@ -184,6 +183,9 @@ match content_type:
         """
 
     case "streams":  # YouTube streams
+        pass
+    
+    case "twitter":  # Twitter Posts
         pass
 
     case "instagram":  # Instagram posts
