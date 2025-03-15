@@ -24,25 +24,51 @@ def yt_get_subscribers_from_handle(yt_channel_handle):
 #big ol block to get api calls and stuff to get the id, channel url and handle functions so its not terrible to deal with in main
 # Get handle from URL
 
-def yt_get_channel_handle_from_url(yt_channel_url):
+def yt_get_channel_id_from_url(yt_channel_url):
     """
-    Extracts the YouTube channel handle from a given URL.
+    Extracts the YouTube channel ID from a given URL.
     Supports:
     - Standard YouTube URLs (e.g., https://www.youtube.com/@handle, https://www.youtube.com/channel/UCxxx)
     - Mobile YouTube URLs (e.g., https://m.youtube.com/@handle)
     - Handle-only URLs (e.g., https://www.youtube.com/@handle)
+    - Channel ID URLs (e.g., https://www.youtube.com/channel/UCxxx)
+    - Shortened youtu.be URLs (e.g., https://youtu.be/VIDEO_ID)
     """
     # Regex patterns for different URL formats
-    handle_pattern = re.compile(r"(?:https?:\/\/)?(?:www\.|m\.)?youtube\.com\/(?:@|channel\/|c\/)?([^\/\?]+)")
-    short_url_pattern = re.compile(r"(?:https?:\/\/)?youtu\.be\/([^\/\?]+)")
+    channel_id_pattern = re.compile(r"(?:https?:\/\/)?(?:www\.|m\.)?youtube\.com\/channel\/([^\/\?]+)")
+    handle_pattern = re.compile(r"(?:https?:\/\/)?(?:www\.|m\.)?youtube\.com\/@([^\/\?]+)")
+    youtu_be_pattern = re.compile(r"(?:https?:\/\/)?youtu\.be\/([^\/\?]+)")
 
-    # Handle standard and mobile YouTube URLs (e.g., https://www.youtube.com/@handle, https://m.youtube.com/@handle)
+    # Check if the URL is a channel ID URL
+    channel_id_match = channel_id_pattern.search(yt_channel_url)
+    if channel_id_match:
+        return channel_id_match.group(1)  # Return the channel ID directly
+
+    # Check if the URL is a handle URL
     handle_match = handle_pattern.search(yt_channel_url)
     if handle_match:
         handle = handle_match.group(1)
-        if handle.startswith("@"):
-            handle = handle[1:]  # Remove "@" for consistency
-        return handle
+        # Use the YouTube API to get the channel ID from the handle
+        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={handle}&type=channel&key={youtube_api_key}"
+        response = requests.get(url).json()
+
+        if "items" not in response or not response["items"]:
+            raise ValueError("Channel not found. Check the handle or API key.")
+
+        return response["items"][0]["snippet"]["channelId"]
+
+    # Check if the URL is a youtu.be link
+    youtu_be_match = youtu_be_pattern.search(yt_channel_url)
+    if youtu_be_match:
+        video_id = youtu_be_match.group(1)
+        # Use the YouTube API to get the channel ID from the video ID
+        url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_id}&key={youtube_api_key}"
+        response = requests.get(url).json()
+
+        if "items" not in response or not response["items"]:
+            raise ValueError("Video not found. Check the video ID or API key.")
+
+        return response["items"][0]["snippet"]["channelId"]
 
     # If no valid format is found, raise an error
     raise ValueError("Invalid YouTube URL format.")

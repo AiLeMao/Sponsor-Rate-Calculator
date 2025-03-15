@@ -32,7 +32,7 @@ content_type = str(os.getenv("test_format"))
 match content_type:
     case "videos":  # YouTube long-form videos
 
-        #import all the static values from static_values.env
+        #import all the static values from config.ini
         yt_get_video_stats_scan_age = int(config.getint("yt_longform", "scan_age"))
         yt_get_video_stats_min_videos = int(config.getint("yt_longform", "min_videos"))
         yt_get_video_stats_max_videos = int(config.getint("yt_longform", "max_videos"))
@@ -59,11 +59,10 @@ match content_type:
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
         #DUMMY INPUTS. FRONT END SHOULD HOOK UP HERE AT SOME POINT
 
+        #--------------------------------------------------------------------------
 
         #convert the input to get the full identifiers: 
-        #THIS HAS A PROBLEM. NOT ALL URL TYPES CONVERT AND CLASSIFY PROPERLY. ONLY SPECIFIC ONES. FIX IT LATER!!!!!
         yt_identifier_array = yt_func.classify_youtube_input(yt_identifier_input)
-        #THIS HAS A PROBLEM. NOT ALL URL TYPES CONVERT AND CLASSIFY PROPERLY. ONLY SPECIFIC ONES. FIX IT LATER!!!!!
 
         #use id from that to get id of playlists so we can call upon the right one later:
         yt_playlists = yt_func.get_playlists(yt_identifier_array["id"])
